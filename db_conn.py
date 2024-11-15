@@ -1,21 +1,21 @@
 import mysql.connector
-from mysql.connector import Error
 import streamlit as st
 import pandas as pd
 
-# Function to establish MySQL connection using st.secrets
+# Function to establish MySQL connection using st.secrets with nested structure
 def create_connection():
     try:
         connection = mysql.connector.connect(
-            host=st.secrets["mysql"]["host"],
-            user=st.secrets["mysql"]["user"],
-            password=st.secrets["mysql"]["password"],
-            database=st.secrets["mysql"]["database"]
+            host=st.secrets["connections"]["dbx"]["host"],
+            user=st.secrets["connections"]["dbx"]["username"],
+            password=st.secrets["connections"]["dbx"]["password"],
+            database=st.secrets["connections"]["dbx"]["database"],
+            port=st.secrets["connections"]["dbx"]["port"]
         )
         if connection.is_connected():
             return connection
-    except Error as e:
-        print(f"Error while connecting to MySQL: {e}")
+    except mysql.connector.Error as e:
+        st.write(f"Error while connecting to MySQL: {e}")
         return None
 
 # Function to fetch a table as a DataFrame
