@@ -38,3 +38,8 @@ coverage.xml
 
 # Ignore MyPy type check reports
 .mypy_cache/
+
+
+
+
+secrets.toml

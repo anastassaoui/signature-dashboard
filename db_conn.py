@@ -1,20 +1,16 @@
 import mysql.connector
 from mysql.connector import Error
-from dotenv import load_dotenv
-import os
+import streamlit as st
 import pandas as pd
 
-# Load environment variables
-load_dotenv()
-
-# Function to establish MySQL connection
+# Function to establish MySQL connection using st.secrets
 def create_connection():
     try:
         connection = mysql.connector.connect(
-            host=os.getenv("MYSQL_HOST"),
-            user=os.getenv("MYSQL_USER"),
-            password=os.getenv("MYSQL_PASSWORD"),
-            database=os.getenv("MYSQL_DATABASE")
+            host=st.secrets["mysql"]["host"],
+            user=st.secrets["mysql"]["user"],
+            password=st.secrets["mysql"]["password"],
+            database=st.secrets["mysql"]["database"]
         )
         if connection.is_connected():
             return connection
@@ -26,10 +22,15 @@ def create_connection():
 def fetch_table_as_dataframe(table_name):
     connection = create_connection()
     if connection:
-        query = f"SELECT * FROM {table_name}"
-        df = pd.read_sql(query, connection)
-        connection.close()
-        return df
+        try:
+            query = f"SELECT * FROM {table_name}"
+            df = pd.read_sql(query, connection)
+            return df
+        except Exception as e:
+            print(f"Error fetching data from table {table_name}: {e}")
+            return None
+        finally:
+            connection.close()
     else:
         print(f"Failed to connect to fetch {table_name}")
         return None
@@ -46,22 +47,30 @@ def fetch_all_tables():
 def get_total_users():
     connection = create_connection()
     if connection:
-        cursor = connection.cursor()
-        cursor.execute("SELECT COUNT(*) FROM user")
-        total_users = cursor.fetchone()[0]
-        cursor.close()
-        connection.close()
-        return total_users
-    return None
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM user")
+            total_users = cursor.fetchone()[0]
+            return total_users
+        except Error as e:
+            print(f"Error fetching total users count: {e}")
+            return None
+        finally:
+            cursor.close()
+            connection.close()
 
 # Function to get the count of active users
 def get_active_users():
     connection = create_connection()
     if connection:
-        cursor = connection.cursor()
-        cursor.execute("SELECT COUNT(*) FROM user WHERE is_active = 1")
-        active_users = cursor.fetchone()[0]
-        cursor.close()
-        connection.close()
-        return active_users
-    return None
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM user WHERE is_active = 1")
+            active_users = cursor.fetchone()[0]
+            return active_users
+        except Error as e:
+            print(f"Error fetching active users count: {e}")
+            return None
+        finally:
+            cursor.close()
+            connection.close()
