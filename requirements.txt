@@ -1,0 +1,6 @@
+pandas 
+pandasai
+streamlit
+langchain_groq
+python-dotenv
+mysql-connector-python
